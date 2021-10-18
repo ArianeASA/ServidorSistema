@@ -153,9 +153,6 @@ main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ServidorSistema.dir/build.make CMakeFiles/ServidorSistema.dir/main.c.s
 .PHONY : main.c.s
 
-run: ServidorSistema
-	./ServidorSistema
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -170,7 +167,8 @@ help:
 	@echo "... main.s"
 .PHONY : help
 
-
+run: ServidorSistema
+	./ServidorSistema
 
 #=============================================================================
 # Special targets to cleanup operation of make.
