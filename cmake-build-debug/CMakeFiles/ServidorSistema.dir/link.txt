@@ -1,0 +1,1 @@
+/usr/bin/cc -g CMakeFiles/ServidorSistema.dir/main.c.o -o ServidorSistema  -lcrypto -lpthread 
