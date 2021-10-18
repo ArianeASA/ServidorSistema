@@ -4,7 +4,7 @@ garantindo a confidencialidade das mensagens utilizando criptografias simétrica
 ### Criptografias Utilizadas
     - AES 128 a 256bits e modo de criptografia CBC (Cypher Block Chaining - Criptografia de Blocos Encadeados)
     - BlowFish 128 a 256bits e modo de criptografia CBC (Cypher Block Chaining - Criptografia de Blocos Encadeados)
-###Pré-Requisito
+### Pré-Requisito
 Para executar o projeto, será necessário instalar os seguintes programas:
 
 - [openssl-1.1.+ : Necessário para executar os processos de criptografias](https://www.openssl.org/source/)
