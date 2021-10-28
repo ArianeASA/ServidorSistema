@@ -12,32 +12,47 @@
 #include <openssl/err.h>
 #include <openssl/conf.h>
 
-typedef struct _chave_simetrica
-{
+typedef struct _chave_simetrica {
     unsigned char *chave;
     unsigned char *inicializador;
 } chave_simetrica;
+
 void geraChavesRSA(char *, char *, int);
+
 void *lerChavePublicaRSA(char *);
+
 void *lerChavePrivadaRSA(char *);
-void *geraChaveAleatoria(unsigned int );
-void imprimeChaveRandomica(unsigned int );
+
+void *geraChaveAleatoria(unsigned int);
+
+void imprimeChaveRandomica(unsigned int);
+
 void imprimeChavePrivadaRSA(char *);
+
 void imprimeChavePublicaRSA(char *);
+
 int to_nid(char *);
+
 int gerarChavesECC(char *, char *, char *);
+
 void *criptografarRSA(char *, unsigned char *);
+
 void *descriptografarRSA(char *, char *);
+
 void *lerChavePublicaECC(char *);
+
 void imprimeChavePublicaECC(char *);
+
 void *lerChavePrivadaECC(char *);
+
 void imprimeChavePrivadaECC(char *);
+
 void *carregarSegredo(const EC_POINT *, EC_KEY *, int *);
-void * returnSegredo(char *, char *, int *);
+
+void *returnSegredo(char *, char *, int *);
 
 
-void geraChavesRSA(char *diretorioChavePrivada, char *diretorioChavePublica, int tamanhoChaveRSA)
-{
+void geraChavesRSA(char *diretorioChavePrivada, char *diretorioChavePublica, int tamanhoChaveRSA) {
 
     unsigned long e = RSA_F4;
     BIGNUM *bne = BN_new();
@@ -57,62 +72,53 @@ void geraChavesRSA(char *diretorioChavePrivada, char *diretorioChavePublica, int
     retorno = PEM_write_bio_RSAPublicKey(bio, rsa);
     if (retorno != 1)
         goto err;
-err:
+    err:
     BIO_free_all(bio);
     RSA_free(rsa);
 }
 
-void *lerChavePublicaRSA(char *diretorioChavePublica)
-{
+void *lerChavePublicaRSA(char *diretorioChavePublica) {
     FILE *arquivo;
     RSA *chavePublica = RSA_new();
     // static char *fraseChave = "criptosystem";
 
-    if ((arquivo = fopen(diretorioChavePublica, "r+")) == NULL)
-    {
+    if ((arquivo = fopen(diretorioChavePublica, "r+")) == NULL) {
         fprintf(stderr, "Erro: Arquivo da chave publica não encontrada '%s'.\n", diretorioChavePublica);
         return NULL;
     }
-    if ((chavePublica = PEM_read_RSAPublicKey(arquivo, (RSA **)NULL, NULL, NULL)) == NULL)
-    {
+    if ((chavePublica = PEM_read_RSAPublicKey(arquivo, (RSA **) NULL, NULL, NULL)) == NULL) {
         fprintf(stderr, "Erro: Falha na leitura da chave publica '%s' file.\n", diretorioChavePublica);
         return NULL;
     }
     fclose(arquivo);
-    return (void *)chavePublica;
+    return (void *) chavePublica;
 }
 
-void *lerChavePrivadaRSA(char *diretorioChavePrivada)
-{
+void *lerChavePrivadaRSA(char *diretorioChavePrivada) {
     FILE *arquivo;
     RSA *chavePrivadaRSA = RSA_new();
     // static char *fraseChave = "criptosystem";
 
-    if ((arquivo = fopen(diretorioChavePrivada, "r+")) == NULL)
-    {
+    if ((arquivo = fopen(diretorioChavePrivada, "r+")) == NULL) {
         fprintf(stderr, "Erro: Arquivo da chave privada não encontrada '%s'.\n", diretorioChavePrivada);
         return NULL;
     }
-    if ((chavePrivadaRSA = PEM_read_RSAPrivateKey(arquivo, &chavePrivadaRSA, NULL, NULL)) == NULL)
-    {
+    if ((chavePrivadaRSA = PEM_read_RSAPrivateKey(arquivo, &chavePrivadaRSA, NULL, NULL)) == NULL) {
         fprintf(stderr, "Erro: Falha na leitura da chave privada '%s' .\n", diretorioChavePrivada);
         return NULL;
     }
     fclose(arquivo);
-    return (void *)chavePrivadaRSA;
+    return (void *) chavePrivadaRSA;
 }
 
-void *geraChaveAleatoria(unsigned int tamanhoChave)
-{
-    unsigned char *chave = (char *)malloc(sizeof(char) * tamanhoChave);
-    unsigned char *inicializador = (char *)malloc(sizeof(char) * tamanhoChave / 2);
-    chave_simetrica *chaves = (chave_simetrica *)malloc(sizeof(chave_simetrica));
+void *geraChaveAleatoria(unsigned int tamanhoChave) {
+    unsigned char *chave = (char *) malloc(sizeof(char) * tamanhoChave);
+    unsigned char *inicializador = (char *) malloc(sizeof(char) * tamanhoChave / 2);
+    chave_simetrica *chaves = (chave_simetrica *) malloc(sizeof(chave_simetrica));
 
-    if (!RAND_bytes(chave, tamanhoChave))
-        ;
+    if (!RAND_bytes(chave, tamanhoChave));
 
-    if (!RAND_bytes(inicializador, tamanhoChave / 2))
-        ;
+    if (!RAND_bytes(inicializador, tamanhoChave / 2));
 
     chaves->chave = chave;
     chaves->inicializador = inicializador;
@@ -120,22 +126,20 @@ void *geraChaveAleatoria(unsigned int tamanhoChave)
     return chaves;
 }
 
-void imprimeChaveRandomica(unsigned int tamanho)
-{
-    chave_simetrica *chaves = (chave_simetrica *)geraChaveAleatoria(tamanho);
+void imprimeChaveRandomica(unsigned int tamanho) {
+    chave_simetrica *chaves = (chave_simetrica *) geraChaveAleatoria(tamanho);
 
     printf("\nChave: ");
-    BIO_dump_fp(stdout, (const void *)chaves->chave, tamanho);
+    BIO_dump_fp(stdout, (const void *) chaves->chave, tamanho);
     printf("\nInicializador: ");
-    BIO_dump_fp(stdout, (const void *)chaves->inicializador, tamanho / 2);
+    BIO_dump_fp(stdout, (const void *) chaves->inicializador, tamanho / 2);
 }
 
-void imprimeChavePrivadaRSA(char *diretorioChaveRSA)
-{
+void imprimeChavePrivadaRSA(char *diretorioChaveRSA) {
     size_t tamanhoChavePrivada;
     char *chavePrivadaString;
 
-    RSA *chavePrivadaRSA = (RSA *)lerChavePrivadaRSA(diretorioChaveRSA);
+    RSA *chavePrivadaRSA = (RSA *) lerChavePrivadaRSA(diretorioChaveRSA);
 
     BIO *bio_priv = BIO_new(BIO_s_mem());
 
@@ -156,12 +160,11 @@ void imprimeChavePrivadaRSA(char *diretorioChaveRSA)
     free(chavePrivadaString);
 }
 
-void imprimeChavePublicaRSA(char *diretorioChavePublica)
-{
+void imprimeChavePublicaRSA(char *diretorioChavePublica) {
     size_t tamanhoChavePublica;
     char *chavePublicaString;
 
-    RSA *chavePublicaRSA = (RSA *)lerChavePublicaRSA(diretorioChavePublica);
+    RSA *chavePublicaRSA = (RSA *) lerChavePublicaRSA(diretorioChavePublica);
 
     BIO *bio_pub = BIO_new(BIO_s_mem());
 
@@ -182,34 +185,27 @@ void imprimeChavePublicaRSA(char *diretorioChavePublica)
     free(chavePublicaString);
 }
 
-int to_nid(char *curvename)
-{
-    if (curvename == "secp256k1")
-    {
+int to_nid(char *curvename) {
+    if (curvename == "secp256k1") {
         return NID_secp256k1;
-    }
-    else if (curvename == "brainpool256r1")
-    {
+    } else if (curvename == "brainpool256r1") {
         return NID_brainpoolP256r1;
     }
 
     return -1;
 }
 
-int gerarChavesECC(char *pubkeyfile, char *privkeyfile, char *curve_name)
-{
+int gerarChavesECC(char *pubkeyfile, char *privkeyfile, char *curve_name) {
     EC_KEY *keygen;
     int nid = to_nid(curve_name);
 
-    if (nid == -1)
-    {
+    if (nid == -1) {
         return -1;
     }
 
     // pega o nome da curva da EC
     keygen = EC_KEY_new_by_curve_name(nid);
-    if (!keygen)
-    {
+    if (!keygen) {
         ERR_print_errors_fp(stderr);
         return -1;
     }
@@ -218,15 +214,13 @@ int gerarChavesECC(char *pubkeyfile, char *privkeyfile, char *curve_name)
 
     //inicializa a geração da chave
     ret = EC_KEY_generate_key(keygen);
-    if (ret != 1)
-    {
+    if (ret != 1) {
         ERR_print_errors_fp(stderr);
         return -1;
     }
 
     ret = EC_KEY_check_key(keygen);
-    if (ret != 1)
-    {
+    if (ret != 1) {
         ERR_print_errors_fp(stderr);
         return -1;
     }
@@ -235,8 +229,7 @@ int gerarChavesECC(char *pubkeyfile, char *privkeyfile, char *curve_name)
     FILE *fp;
 
     fp = fopen(pubkeyfile, "w+");
-    if (!fp)
-    {
+    if (!fp) {
         return -1;
     }
 
@@ -245,8 +238,7 @@ int gerarChavesECC(char *pubkeyfile, char *privkeyfile, char *curve_name)
     fclose(fp);
 
     fp = fopen(privkeyfile, "w+");
-    if (!fp)
-    {
+    if (!fp) {
         return -1;
     }
 
@@ -260,31 +252,28 @@ int gerarChavesECC(char *pubkeyfile, char *privkeyfile, char *curve_name)
     return 0;
 }
 
-void *criptografarRSA(char *diretorioChavePrivadaRSA, unsigned char *textoClaro)
-{
+void *criptografarRSA(char *diretorioChavePrivadaRSA, unsigned char *textoClaro) {
 
     RSA *chavePrivadaRSA = RSA_new();
-    char *textoCifrado = (char *)malloc(sizeof(char) * 1024);
+    char *textoCifrado = (char *) malloc(sizeof(char) * 1024);
 
-    if ((chavePrivadaRSA = (RSA *)lerChavePrivadaRSA(diretorioChavePrivadaRSA)) != NULL)
-    {
+    if ((chavePrivadaRSA = (RSA *) lerChavePrivadaRSA(diretorioChavePrivadaRSA)) != NULL) {
         fprintf(stderr, "Private key read.\n\n");
-        int tamanhoTextoCifrado = RSA_private_encrypt(strlen(textoClaro), (unsigned char *)textoClaro, textoCifrado, chavePrivadaRSA, RSA_PKCS1_PADDING);
-        BIO_dump_fp(stdout, (const char *)textoCifrado, tamanhoTextoCifrado);
+        int tamanhoTextoCifrado = RSA_private_encrypt(strlen(textoClaro), (unsigned char *) textoClaro, textoCifrado,
+                                                      chavePrivadaRSA, RSA_PKCS1_PADDING);
+        BIO_dump_fp(stdout, (const char *) textoCifrado, tamanhoTextoCifrado);
     }
 
     RSA_free(chavePrivadaRSA);
     return textoCifrado;
 }
 
-void *descriptografarRSA(char *diretorioChavePublicaRSA, char *textoCifrado)
-{
+void *descriptografarRSA(char *diretorioChavePublicaRSA, char *textoCifrado) {
 
     RSA *chavePublicaRSA = RSA_new();
-    char *textoClaro = (char *)malloc(sizeof(char) * 1024);
+    char *textoClaro = (char *) malloc(sizeof(char) * 1024);
 
-    if ((chavePublicaRSA = (RSA *)lerChavePublicaRSA(diretorioChavePublicaRSA)) != NULL)
-    {
+    if ((chavePublicaRSA = (RSA *) lerChavePublicaRSA(diretorioChavePublicaRSA)) != NULL) {
         RSA_public_decrypt(RSA_size(chavePublicaRSA), textoCifrado, textoClaro, chavePublicaRSA, RSA_PKCS1_PADDING);
         printf("\nTexto claro: %s\n", textoClaro);
     }
@@ -293,28 +282,24 @@ void *descriptografarRSA(char *diretorioChavePublicaRSA, char *textoCifrado)
     return textoClaro;
 }
 
-void *lerChavePublicaECC(char *diretorioChavePublica)
-{
+void *lerChavePublicaECC(char *diretorioChavePublica) {
 
     EC_KEY *chavePublica = EC_KEY_new();
     EVP_PKEY *verificaChave = EVP_PKEY_new();
     FILE *file;
     int retorno;
 
-    if (!(file = fopen(diretorioChavePublica, "r")))
-    {
+    if (!(file = fopen(diretorioChavePublica, "r"))) {
         fclose(file);
         goto erro;
     }
 
-    if (!(chavePublica = PEM_read_EC_PUBKEY(file, NULL, NULL, NULL)))
-    {
+    if (!(chavePublica = PEM_read_EC_PUBKEY(file, NULL, NULL, NULL))) {
         ERR_print_errors_fp(stderr);
         goto erro;
     }
 
-    if (retorno = EVP_PKEY_assign_EC_KEY(verificaChave, chavePublica) != 1)
-    {
+    if (retorno = EVP_PKEY_assign_EC_KEY(verificaChave, chavePublica) != 1) {
         ERR_print_errors_fp(stderr);
         goto erro;
     }
@@ -324,16 +309,15 @@ void *lerChavePublicaECC(char *diretorioChavePublica)
     printf("Chave Publica carregada com SUCESSO.");
     return chavePublica;
 
-erro:
+    erro:
     free(verificaChave);
     return NULL;
 }
 
-void imprimeChavePublicaECC(char *diretorioChavePublica)
-{
+void imprimeChavePublicaECC(char *diretorioChavePublica) {
 
     BIO *bio = BIO_new(BIO_s_mem());
-    PEM_write_bio_EC_PUBKEY(bio, (EC_KEY *)lerChavePublicaECC(diretorioChavePublica));
+    PEM_write_bio_EC_PUBKEY(bio, (EC_KEY *) lerChavePublicaECC(diretorioChavePublica));
 
     size_t tamanhoChavePublica = BIO_pending(bio);
 
@@ -349,28 +333,24 @@ void imprimeChavePublicaECC(char *diretorioChavePublica)
     free(chavePublicaString);
 }
 
-void *lerChavePrivadaECC(char *diretorioChavePrivada)
-{
+void *lerChavePrivadaECC(char *diretorioChavePrivada) {
     FILE *file;
     EC_KEY *chavePrivada = EC_KEY_new();
     EVP_PKEY *verificaChave = EVP_PKEY_new();
     int retorno;
 
-    if (!(file = fopen(diretorioChavePrivada, "r")))
-    {
+    if (!(file = fopen(diretorioChavePrivada, "r"))) {
         goto erro;
     }
 
 
-    if (!(chavePrivada = PEM_read_ECPrivateKey(file, NULL, NULL, NULL)))
-    {
+    if (!(chavePrivada = PEM_read_ECPrivateKey(file, NULL, NULL, NULL))) {
         ERR_print_errors_fp(stderr);
         goto erro;
     }
 
     EC_KEY_check_key(chavePrivada);
-    if ((retorno = EVP_PKEY_assign_EC_KEY(verificaChave, chavePrivada)) != 1)
-    {
+    if ((retorno = EVP_PKEY_assign_EC_KEY(verificaChave, chavePrivada)) != 1) {
         ERR_print_errors_fp(stderr);
         goto erro;
     }
@@ -380,16 +360,15 @@ void *lerChavePrivadaECC(char *diretorioChavePrivada)
     printf("Chave Privada Carregada Com SUCESSO.");
 
     return chavePrivada;
-erro:
+    erro:
     free(verificaChave);
     return NULL;
 }
 
-void imprimeChavePrivadaECC(char *diretorioChavePrivada)
-{
+void imprimeChavePrivadaECC(char *diretorioChavePrivada) {
 
     BIO *bio = BIO_new(BIO_s_mem());
-    PEM_write_bio_ECPrivateKey(bio, (EC_KEY *)lerChavePrivadaECC(diretorioChavePrivada), NULL, NULL, 0, NULL, NULL);
+    PEM_write_bio_ECPrivateKey(bio, (EC_KEY *) lerChavePrivadaECC(diretorioChavePrivada), NULL, NULL, 0, NULL, NULL);
 
     size_t tamanhoChavePrivada = BIO_pending(bio);
 
@@ -405,8 +384,7 @@ void imprimeChavePrivadaECC(char *diretorioChavePrivada)
     free(chavePrivadaString);
 }
 
-void *carregarSegredo(const EC_POINT *chavePublicaRecebidaECC, EC_KEY *chavePrivadaECC, int * tamanhoSegredo)
-{
+void *carregarSegredo(const EC_POINT *chavePublicaRecebidaECC, EC_KEY *chavePrivadaECC, int *tamanhoSegredo) {
 
     int tamanho;
     unsigned char *segredo;
@@ -414,26 +392,26 @@ void *carregarSegredo(const EC_POINT *chavePublicaRecebidaECC, EC_KEY *chavePriv
     tamanho = EC_GROUP_get_degree(EC_KEY_get0_group(chavePrivadaECC));
     *tamanhoSegredo = ((tamanho + 7) / 8);
     printf("Tamanho : %d ", *tamanhoSegredo);
-    if (NULL == (segredo = OPENSSL_malloc(*tamanhoSegredo)))
-    {
+    if (NULL == (segredo = OPENSSL_malloc(*tamanhoSegredo))) {
         printf("Falha ao armazenar segredo.");
         return NULL;
     }
 
     *tamanhoSegredo = ECDH_compute_key(segredo, *tamanhoSegredo, chavePublicaRecebidaECC, chavePrivadaECC, NULL);
 
-    if (*tamanhoSegredo <= 0)
-    {
+    if (*tamanhoSegredo <= 0) {
         OPENSSL_free(segredo);
         return NULL;
     }
     return segredo;
 }
 
-void * returnSegredo(char *diretorioChavePublicaOutro, char * diretorioMinhaChavePrivada, int * tamanho){
+void *returnSegredo(char *diretorioChavePublicaOutro, char *diretorioMinhaChavePrivada, int *tamanho) {
     EC_KEY *minhaChavePrivadaCliente = (EC_KEY *) lerChavePrivadaECC(diretorioMinhaChavePrivada);
-    const EC_POINT *chavePublicaOutro = EC_KEY_get0_public_key((const EC_KEY *) lerChavePublicaECC(diretorioChavePublicaOutro));
-    unsigned char *segredoServidor = (unsigned char *)carregarSegredo(chavePublicaOutro, minhaChavePrivadaCliente, tamanho);
+    const EC_POINT *chavePublicaOutro = EC_KEY_get0_public_key(
+            (const EC_KEY *) lerChavePublicaECC(diretorioChavePublicaOutro));
+    unsigned char *segredoServidor = (unsigned char *) carregarSegredo(chavePublicaOutro, minhaChavePrivadaCliente,
+                                                                       tamanho);
 //    printf("\nServidor :\n");
 //	BIO_dump_fp(stdout, (const char *)segredoServidor, sizeof segredoServidor);
     return segredoServidor;

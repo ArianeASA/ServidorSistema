@@ -16,10 +16,10 @@
 //#define MAX_SIZE_chave128 16
 //#define MAX_SIZE_chave192 24
 //#define MAX_SIZE_chave256 32
-#define QUANT_CRIP 6
+#define QUANT_CRIP 7
 char *vetCrip[QUANT_CRIP] = {"##AES256##", "##AES192##",
                              "##AES128##", "##BF128##",
-                             "##BF192##", "##BF256##"};
+                             "##BF192##", "##BF256##", "##CHACHA##"};
 params_cifra *params;
 char cripAtual[12];
 // typedef struct _tempo_cifra{
@@ -28,35 +28,35 @@ char cripAtual[12];
 // }tempo_cifra;
 
 void *tratador_conexao(void *);
+
 int decrip(unsigned char *, unsigned char *, int);
+
 void timerUltimaTroca(time_t, time_t *, int);
+
 void gravaTemposComunicacao(unsigned long int, char *);
 
 
-void timerUltimaTroca(time_t troca, time_t *fim,int qtdMensagens){
+void timerUltimaTroca(time_t troca, time_t *fim, int qtdMensagens) {
 
     time_t now, gasto;
     time(&now);
-    char * texto = "Tempo de execução da criptografia ";
+    char *texto = "Tempo de execução da criptografia ";
     gasto = now - troca;
     printf("Timer: %ld/ inicio: %ld/ agora: %ld\n", gasto, troca, now);
 
-    FILE * arq;
+    FILE *arq;
     // Acrescenta dados ou cria uma arquivo leitura e escrita.
     arq = fopen("./Tempos/tempos.txt", "a+");
 
-    if(arq != NULL)
-    {
+    if (arq != NULL) {
         // escreve cada elemento do vetor no arquivo
         fflush(stdin);
-        fprintf(arq, "Tempo de execução da criptografia %s :  %ld segundos\n", cripAtual, gasto );
-        fprintf(arq, "Quantidade de Mensagens Recebidas: %d \n", qtdMensagens );
+        fprintf(arq, "Tempo de execução da criptografia %s :  %ld segundos\n", cripAtual, gasto);
+        fprintf(arq, "Quantidade de Mensagens Recebidas: %d \n", qtdMensagens);
 
         //fecha o arquivo
         fclose(arq);
-    }
-    else
-    {
+    } else {
         printf("\nErro ao abrir o arquivo para leitura!\n");
         exit(1); // aborta o programa
     }
@@ -73,53 +73,60 @@ void timerUltimaTroca(time_t troca, time_t *fim,int qtdMensagens){
 }
 
 
-void trocaCrip(char *crip){
-    params_cifra *parametros = (params_cifra *)malloc(sizeof(params_cifra));
+void trocaCrip(char *crip) {
+    params_cifra *parametros = (params_cifra *) malloc(sizeof(params_cifra));
     params_cifra *varlimpar = params;
-    int tamanho = 0;
-    if(strcmp(crip, vetCrip[0]) == 0){
-        /* A 256 bit chave */
-        parametros->chave = (unsigned char *) returnSegredo("../ChavesClientes/pubECC.pem", "../ChavesServidor/privECC.pem", &tamanho);
-        //"01234567890123456789012345678901";
-        parametros->iv = (unsigned char *)"UTF3456789012345";
+    if (strcmp(crip, vetCrip[0]) == 0) {
+//        /* A 256 bit chave */
+//        parametros->chave = (unsigned char *) returnSegredo("../ChavesClientes/pubECC.pem",
+//                                                            "../ChavesServidor/privECC.pem", &tamanho);
+        parametros->chave = (unsigned char *) "01234567890123456789012345678901";
+        parametros->iv = (unsigned char *) "UTF3456789012345";
         parametros->tipo_cifra = EVP_aes_256_cbc();
         strcpy(cripAtual, vetCrip[0]);
-    }else if ( strcmp(crip, vetCrip[1]) == 0){
+    } else if (strcmp(crip, vetCrip[1]) == 0) {
         /* A 192 bit chave */
-        parametros->chave = (unsigned char *)"KKKKKKKK888985888582525T";
-        parametros->iv = (unsigned char *)"BRA3456789012345";
+        parametros->chave = (unsigned char *) "KKKKKKKK888985888582525T";
+        parametros->iv = (unsigned char *) "BRA3456789012345";
         parametros->tipo_cifra = EVP_aes_192_cbc();
         strcpy(cripAtual, vetCrip[1]);
-    }else if (strcmp(crip, vetCrip[2]) == 0){
+    } else if (strcmp(crip, vetCrip[2]) == 0) {
         /* A 128 bit chave */
-        parametros->chave = (unsigned char *)"ARIAEFGHIJ123456";
-        parametros->iv = (unsigned char *)"VOA3456789012345";
+        parametros->chave = (unsigned char *) "ARIAEFGHIJ123456";
+        parametros->iv = (unsigned char *) "VOA3456789012345";
         parametros->tipo_cifra = EVP_aes_128_cbc();
         strcpy(cripAtual, vetCrip[2]);
-    }else if (strcmp(crip, vetCrip[3]) == 0){
+    } else if (strcmp(crip, vetCrip[3]) == 0) {
         /* A 128 bit chave */
-        parametros->chave = (unsigned char *)"PARAEFGHIJ123456";
-        parametros->iv = (unsigned char *)"ARIANE25";
+        parametros->chave = (unsigned char *) "PARAEFGHIJ123456";
+        parametros->iv = (unsigned char *) "ARIANE25";
         parametros->tipo_cifra = EVP_bf_cbc();
         strcpy(cripAtual, vetCrip[3]);
-    } else if (strcmp(crip, vetCrip[4]) == 0){
+    } else if (strcmp(crip, vetCrip[4]) == 0) {
         /* A 192 bit chave */
-        parametros->chave = (unsigned char *)"KKKKKKKK888985888582525T";
-        parametros->iv = (unsigned char *)"BABA4538";
+        parametros->chave = (unsigned char *) "KKKKKKKK888985888582525T";
+        parametros->iv = (unsigned char *) "BABA4538";
         parametros->tipo_cifra = EVP_bf_cbc();
         strcpy(cripAtual, vetCrip[4]);
-    } else if (strcmp(crip, vetCrip[5]) == 0){
+    } else if (strcmp(crip, vetCrip[5]) == 0) {
         /* A 256 bit chave */
-        parametros->chave = (unsigned char *)"01234567890123456789012345678901";
-        parametros->iv = (unsigned char *)"TIO9K2K2";
+        parametros->chave = (unsigned char *) "01234567890123456789012345678901";
+        parametros->iv = (unsigned char *) "TIO9K2K2";
         parametros->tipo_cifra = EVP_bf_cbc();
         strcpy(cripAtual, vetCrip[5]);
+    }else if (strcmp(crip, "##CHACHA##") == 0) {
+        /* A 256 bit chave */
+        parametros->chave = (unsigned char *) "01234567890123456789012345678901";
+        parametros->iv = (unsigned char *) "VOA345678901";
+        parametros->tipo_cifra = EVP_chacha20();
+        strcpy(cripAtual, vetCrip[6]);
+
     }
 
-    if(!params){
+    if (!params) {
         params = parametros;
         free(varlimpar);
-    }else{
+    } else {
         params = parametros;
     }
 
@@ -133,7 +140,7 @@ void trocaCrip(char *crip){
 //     abort();
 // }
 
-int decrip(unsigned char *textocifrado, unsigned char *textoclaro, int tamanho){
+int decrip(unsigned char *textocifrado, unsigned char *textoclaro, int tamanho) {
 
 //    printf("Texto Cifrado :\n");
 //    BIO_dump_fp (stdout, (const char *)textocifrado, tamanho);
@@ -153,19 +160,20 @@ int decrip(unsigned char *textocifrado, unsigned char *textoclaro, int tamanho){
     return 0;
 
 }
-int imprimeCabecalho = 0;
-void gravaTemposComunicacao(unsigned long int inicio, char * crip) {
 
-    char * nomeArquivo = calloc(1,sizeof(char)*20);
+int imprimeCabecalho = 0;
+
+void gravaTemposComunicacao(unsigned long int inicio, char *crip) {
+
+    char *nomeArquivo = calloc(1, sizeof(char) * 20);
     // memset(nomeArquivo, 0, 20);
     strcpy(nomeArquivo, crip);
-    strcat(nomeArquivo,".csv");
-    FILE *arquivo = fopen(nomeArquivo,"a+");
-    if(arquivo){
+    strcat(nomeArquivo, ".csv");
+    FILE *arquivo = fopen(nomeArquivo, "a+");
+    if (arquivo) {
         // IMPRIMIR O CABECALHO DO ARQUIVO
-        if (imprimeCabecalho == 0)
-        {
-            fprintf(arquivo, "\n %s ;",crip);
+        if (imprimeCabecalho == 0) {
+            fprintf(arquivo, "\n %s ;", crip);
             imprimeCabecalho++;
         }
 
@@ -173,7 +181,7 @@ void gravaTemposComunicacao(unsigned long int inicio, char * crip) {
         time(&now);
         gasto = now - inicio;
 
-        fprintf(arquivo, "%ld ;", gasto );
+        fprintf(arquivo, "%ld ;", gasto);
 
     }
     fclose(arquivo);
@@ -181,19 +189,18 @@ void gravaTemposComunicacao(unsigned long int inicio, char * crip) {
 }
 
 
+int crip(unsigned char *textoclaro, unsigned char *textocifrado) {
 
-int crip (unsigned char *textoclaro, unsigned char *textocifrado){
 
-
-    int  textocifrado_tamanho;
+    int textocifrado_tamanho;
 
     /* Criptografar o textoclaro */
-    textocifrado_tamanho = encrypt(textoclaro, strlen ((char *)textoclaro), params,
+    textocifrado_tamanho = encrypt(textoclaro, strlen((char *) textoclaro), params,
                                    textocifrado);
 
     /* Imprimindo texto cifrado */
     printf("Texto Cifrado :\n");
-    BIO_dump_fp (stdout, (const char *)textocifrado, textocifrado_tamanho);
+    BIO_dump_fp(stdout, (const char *) textocifrado, textocifrado_tamanho);
 
     return 0;
 }
@@ -206,14 +213,11 @@ int crip (unsigned char *textoclaro, unsigned char *textocifrado){
  - Espera mensagem do cliente
  - Inicializa a troca de menssagens criptografadas
 */
-
-void *tratador_conexao(void *conexao)
-{
-    int sock = *(int *)conexao;
+void *tratador_conexao(void *conexao) {
+    int sock = *(int *) conexao;
     int tamanho;
     char recebida[MAX_MSG];
     char *mensagem;
-    char chaveAtual[MAX_MSG];
     char textoCifrado[MAX_MSG];
     // tempo_cifra * tempoAndTextoCifrado = malloc(sizeof(tempo_cifra));
     int deint = 0;
@@ -227,12 +231,11 @@ void *tratador_conexao(void *conexao)
     trocaCrip(vetCrip[0]);
     time(&inicio);
     fflush(stdin);
-    while ((tamanho = recv(sock, textoCifrado, MAX_MSG, 0)) > 0)
-    {
+    while ((tamanho = recv(sock, textoCifrado, MAX_MSG, 0)) > 0) {
         qtdMenssagens++;
         printf("Tamanho recebido %d \n", tamanho);
         memset(recebida, 0, MAX_MSG);
-        while(decrip(textoCifrado, recebida, strlen(textoCifrado))<0){
+        while (decrip(textoCifrado, recebida, strlen(textoCifrado)) < 0) {
             fflush(stdout);
             write(sock, "##ERROR##", strlen("##ERROR##"));
         }
@@ -241,40 +244,36 @@ void *tratador_conexao(void *conexao)
         // gravaTemposComunicacao(tempo, cripAtual);/
         printf("Recebida : %s", recebida);
         //verifica se na mensagem recebida contem a tag de troca de criptografia
-        if(strcmp(recebida, vetCrip[0]) == 0
-        || strcmp(recebida, vetCrip[1]) == 0
-        || strcmp(recebida, vetCrip[2]) == 0
-        || strcmp(recebida, vetCrip[3]) == 0
-        || strcmp(recebida, vetCrip[4]) == 0
-        || strcmp(recebida, vetCrip[5]) == 0 )
-        {
+        if (strcmp(recebida, vetCrip[0]) == 0
+            || strcmp(recebida, vetCrip[1]) == 0
+            || strcmp(recebida, vetCrip[2]) == 0
+            || strcmp(recebida, vetCrip[3]) == 0
+            || strcmp(recebida, vetCrip[4]) == 0
+            || strcmp(recebida, vetCrip[5]) == 0) {
 //            timerUltimaTroca( inicio, &inicio, qtdMenssagens);
             printf("\033[1;42m Iniciando a troca de Criptografia \033[0m\n");
             trocaCrip(recebida);
             fflush(stdin);
             write(sock, "##TROCAOK##", strlen("##TROCAOK##"));
-            qtdMenssagens=0;
-        }else{
+            qtdMenssagens = 0;
+        } else {
             fflush(stdout);
             write(sock, "##OK##", strlen("##OK##"));
 
         }
 
         // limpa as variaveis
-        memset(textoCifrado, 0,MAX_MSG);
+        memset(textoCifrado, 0, MAX_MSG);
         memset(recebida, 0, MAX_MSG);
         fflush(stdin);
 
     }
 
-    if (tamanho == 0)
-    {
+    if (tamanho == 0) {
 //        timerUltimaTroca( inicio, &inicio, qtdMenssagens);
         puts("Cliente desconectou.\n");
         fflush(stdout);
-    }
-    else if (tamanho == -1)
-    {
+    } else if (tamanho == -1) {
         perror("erro no recebimento: \n Cliente Desconetado!\n ");
     }
 
@@ -284,8 +283,7 @@ void *tratador_conexao(void *conexao)
     return 0;
 }
 
-int main(void)
-{
+int main(void) {
     //variaveis
     int socket_desc, conexao, c, *nova_conexao;
     struct sockaddr_in server, client;
@@ -300,21 +298,18 @@ int main(void)
     /*********************************************************/
     //Criando um socket
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_desc == -1)
-    {
+    if (socket_desc == -1) {
         printf("Não foi possivel criar o socket\n");
         return -1;
     }
 
     int reuso = 1;
-    if (setsockopt(socket_desc, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuso, sizeof(reuso)) < 0)
-    {
+    if (setsockopt(socket_desc, SOL_SOCKET, SO_REUSEADDR, (const char *) &reuso, sizeof(reuso)) < 0) {
         perror("Não foi possivel reusar endereço");
         return -1;
     }
 #ifdef SO_REUSEPORT
-    if (setsockopt(socket_desc, SOL_SOCKET, SO_REUSEPORT, (const char *)&reuso, sizeof(reuso)) < 0)
-    {
+    if (setsockopt(socket_desc, SOL_SOCKET, SO_REUSEPORT, (const char *) &reuso, sizeof(reuso)) < 0) {
         perror("Não foi possível reusar porta");
         return -1;
     }
@@ -326,8 +321,7 @@ int main(void)
     server.sin_port = htons(1234);
     //	printf("IP servidor : %s ", inet_ntoa(server.sin_addr));
     //Associando o socket a porta e endereco
-    if (bind(socket_desc, (struct sockaddr *)&server, sizeof(server)) < 0)
-    {
+    if (bind(socket_desc, (struct sockaddr *) &server, sizeof(server)) < 0) {
         puts("Erro ao fazer bind\n");
     }
     puts("Bind efetuado com sucesso\n");
@@ -340,10 +334,8 @@ int main(void)
     puts("Aguardando por conexoes...");
     c = sizeof(struct sockaddr_in);
     // Fica esperando por conexoes
-    while ((conexao = accept(socket_desc, (struct sockaddr *)&client, (socklen_t *)&c)))
-    {
-        if (conexao < 0)
-        {
+    while ((conexao = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c))) {
+        if (conexao < 0) {
             perror("Erro ao receber conexao\n");
             return -1;
         }
@@ -357,8 +349,7 @@ int main(void)
         nova_conexao = malloc(1);
         *nova_conexao = conexao;
 
-        if (pthread_create(&processo, NULL, tratador_conexao, (void *)nova_conexao) < 0)
-        {
+        if (pthread_create(&processo, NULL, tratador_conexao, (void *) nova_conexao) < 0) {
             perror("Nao foi possivel criar thread: ");
             return -1;
         }

@@ -1,3 +1,0 @@
-/home/ariane/Documents/projetosTCC2/ServidorSistema/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/ariane/Documents/projetosTCC2/ServidorSistema/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/ariane/Documents/projetosTCC2/ServidorSistema/cmake-build-debug/CMakeFiles/ServidorSistema.dir
