@@ -9,25 +9,23 @@ Para executar o projeto, será necessário instalar os seguintes programas:
 
 - [openssl-1.1.+ : Necessário para executar os processos de criptografias](https://www.openssl.org/source/)
 
-### Configurações necessárias
-O arquivo Makefile presente na pasta cmake-build-debug possui as seguintes variáveis que necessitam alterações, 
-com o diretório de cada item presente em seu computador:
-
 ### Construir o executável 
-Acessar a pasta 'cmake-build-debug' pelo terminal, executar o seguinte comando:
+Acessar a pasta do projeto pelo terminal, executar o seguinte comando:
 ```shell
-  make
+  cd ServidorSistema/
+  make compile
 ```
 
 ### Executar o projeto
-Acessar a pasta 'cmake-build-debug' pelo terminal, executar o seguinte comando:
+Já na pasta do projeto pelo terminal, executar o seguinte comando:
 ```shell
   make run
 ```
 
 ### Realizou modificações no projeto?
-Acessar a pasta 'cmake-build-debug' pelo terminal, executar o seguinte comando:
+Acessar a pasta principal pelo terminal, executar o seguinte comando:
 ```shell
+  cd ServidorSistema/
   make clean
 ```
-E realize novamente o processo de construção do executável
+E realize novamente o processo de construção do executável.

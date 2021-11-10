@@ -12,20 +12,11 @@
 #include <time.h>
 
 #define MAX_MSG 1024
-//#define MAX_MSG128 16
-//#define MAX_SIZE_chave128 16
-//#define MAX_SIZE_chave192 24
-//#define MAX_SIZE_chave256 32
-#define QUANT_CRIP 7
+#define QUANT_CRIP 4
 char *vetCrip[QUANT_CRIP] = {"##AES256##", "##AES192##",
-                             "##AES128##", "##BF128##",
-                             "##BF192##", "##BF256##", "##CHACHA##"};
+                             "##AES128##", "##CHACHA##"};
 params_cifra *params;
 char cripAtual[12];
-// typedef struct _tempo_cifra{
-//     unsigned char textoCifrado[MAX_MSG];
-//     unsigned long int tempo;
-// }tempo_cifra;
 
 void *tratador_conexao(void *);
 
@@ -77,9 +68,6 @@ void trocaCrip(char *crip) {
     params_cifra *parametros = (params_cifra *) malloc(sizeof(params_cifra));
     params_cifra *varlimpar = params;
     if (strcmp(crip, vetCrip[0]) == 0) {
-//        /* A 256 bit chave */
-//        parametros->chave = (unsigned char *) returnSegredo("../ChavesClientes/pubECC.pem",
-//                                                            "../ChavesServidor/privECC.pem", &tamanho);
         parametros->chave = (unsigned char *) "01234567890123456789012345678901";
         parametros->iv = (unsigned char *) "UTF3456789012345";
         parametros->tipo_cifra = EVP_aes_256_cbc();
@@ -96,30 +84,13 @@ void trocaCrip(char *crip) {
         parametros->iv = (unsigned char *) "VOA3456789012345";
         parametros->tipo_cifra = EVP_aes_128_cbc();
         strcpy(cripAtual, vetCrip[2]);
-    } else if (strcmp(crip, vetCrip[3]) == 0) {
-        /* A 128 bit chave */
-        parametros->chave = (unsigned char *) "PARAEFGHIJ123456";
-        parametros->iv = (unsigned char *) "ARIANE25";
-        parametros->tipo_cifra = EVP_bf_cbc();
-        strcpy(cripAtual, vetCrip[3]);
-    } else if (strcmp(crip, vetCrip[4]) == 0) {
-        /* A 192 bit chave */
-        parametros->chave = (unsigned char *) "KKKKKKKK888985888582525T";
-        parametros->iv = (unsigned char *) "BABA4538";
-        parametros->tipo_cifra = EVP_bf_cbc();
-        strcpy(cripAtual, vetCrip[4]);
-    } else if (strcmp(crip, vetCrip[5]) == 0) {
+
+    }else if (strcmp(crip, vetCrip[3]) == 0) {
         /* A 256 bit chave */
         parametros->chave = (unsigned char *) "01234567890123456789012345678901";
-        parametros->iv = (unsigned char *) "TIO9K2K2";
-        parametros->tipo_cifra = EVP_bf_cbc();
-        strcpy(cripAtual, vetCrip[5]);
-    }else if (strcmp(crip, "##CHACHA##") == 0) {
-        /* A 256 bit chave */
-        parametros->chave = (unsigned char *) "01234567890123456789012345678901";
-        parametros->iv = (unsigned char *) "VOA345678901";
+        parametros->iv = (unsigned char *) "VOA3456789012345";
         parametros->tipo_cifra = EVP_chacha20();
-        strcpy(cripAtual, vetCrip[6]);
+        strcpy(cripAtual, vetCrip[3]);
 
     }
 
@@ -233,23 +204,21 @@ void *tratador_conexao(void *conexao) {
     fflush(stdin);
     while ((tamanho = recv(sock, textoCifrado, MAX_MSG, 0)) > 0) {
         qtdMenssagens++;
-        printf("Tamanho recebido %d \n", tamanho);
+//        printf("Tamanho recebido %d \n", tamanho);
         memset(recebida, 0, MAX_MSG);
         while (decrip(textoCifrado, recebida, strlen(textoCifrado)) < 0) {
             fflush(stdout);
             write(sock, "##ERROR##", strlen("##ERROR##"));
         }
-        recebida[strlen(textoCifrado)] = '\0';
+//        recebida[strlen(textoCifrado)] = '\0';
 
         // gravaTemposComunicacao(tempo, cripAtual);/
-        printf("Recebida : %s", recebida);
+        printf("Recebida : %s\n", recebida);
         //verifica se na mensagem recebida contem a tag de troca de criptografia
         if (strcmp(recebida, vetCrip[0]) == 0
             || strcmp(recebida, vetCrip[1]) == 0
             || strcmp(recebida, vetCrip[2]) == 0
-            || strcmp(recebida, vetCrip[3]) == 0
-            || strcmp(recebida, vetCrip[4]) == 0
-            || strcmp(recebida, vetCrip[5]) == 0) {
+            || strcmp(recebida, vetCrip[3]) == 0) {
 //            timerUltimaTroca( inicio, &inicio, qtdMenssagens);
             printf("\033[1;42m Iniciando a troca de Criptografia \033[0m\n");
             trocaCrip(recebida);
